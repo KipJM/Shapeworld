@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b1ctx302wq0fo"]
+
+[ext_resource type="Texture2D" uid="uid://dtghlpfd86a8c" path="res://addons/character-controller/example/main/textures/rock2.png" id="1_maw7b"]
+
+[resource]
+albedo_color = Color(0.6995287, 0.67710185, 0.4262113, 1)
+roughness = 0.8
+roughness_texture = ExtResource("1_maw7b")
+uv1_scale = Vector3(1000, 1000, 1000)
