@@ -1,0 +1,26 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b0jlxjcsdq4ec"]
+
+[ext_resource type="Texture2D" uid="uid://dtghlpfd86a8c" path="res://addons/character-controller/example/main/textures/rock2.png" id="1_utpu0"]
+[ext_resource type="Texture2D" uid="uid://m5us13vug6au" path="res://addons/character-controller/example/main/textures/rock.png" id="2_o4ebt"]
+
+[resource]
+transparency = 1
+albedo_color = Color(0, 0.63529414, 0.7921569, 0.7254902)
+roughness = 0.0
+emission_enabled = true
+emission = Color(0.20109543, 0.15082794, 0.9999998, 1)
+emission_energy_multiplier = 3.85
+rim_enabled = true
+rim_tint = 0.0
+clearcoat_roughness = 1.0
+subsurf_scatter_strength = 0.05
+subsurf_scatter_texture = ExtResource("2_o4ebt")
+backlight_enabled = true
+backlight = Color(0.3137281, 0.45246267, 0.78886396, 1)
+refraction_enabled = true
+refraction_scale = -1.0
+refraction_texture = ExtResource("1_utpu0")
+uv1_scale = Vector3(29.57, 29.57, 29.57)
+proximity_fade_distance = 5.0
+distance_fade_mode = 1
+distance_fade_min_distance = 1.0

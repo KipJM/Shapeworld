@@ -15,7 +15,7 @@ func _ready():
 	nav_agent.target_desired_distance = 0.5
 	nav_agent.max_speed = movement_speed
 
-	nav_agent.debug_enabled = false
+	nav_agent.debug_enabled = true
 
 	nav_agent.velocity_computed.connect(apply_velocity)
 

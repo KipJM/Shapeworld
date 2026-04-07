@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://pjl74cpmrhlq"]
+
+[ext_resource type="Script" uid="uid://b8cpf7a70ydna" path="res://Agents/agent.gd" id="1_j3vhu"]
+
+[node name="Agent" type="Node3D" unique_id=1735993389]
+script = ExtResource("1_j3vhu")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=852106338]
+avoidance_enabled = true
+max_speed = 10000.0
