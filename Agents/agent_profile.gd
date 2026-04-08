@@ -21,6 +21,6 @@ class_name AgentProfile
 @export var allow_repeats: bool
 ## value between 0 and 1, larger: guest want to go on rides more; smaller: guest want to do activities more
 @export_range(0,1, 0.1) var attraction_preference: float
-## how many minutes agent is willing to wait in a queue, if a wait time is
-## longer than this the agent will seek an expedited pass
+## Balking point. how many minutes agent is willing to wait in a queue, if a wait time is
+## longer than this the agent will seek an expedited pass (if allowed), if none agent will choose another ride
 @export var wait_threshold: int

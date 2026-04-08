@@ -1,3 +1,3 @@
 extends Node
 
-@export var ride_popularity: Dictionary[Activity, float]
+@export var activity_popularity: Dictionary[Activity, float]

@@ -15,6 +15,7 @@ config/description="Visualization of Defunctland's shapeland.
 
 Simulates a day in the Florida themed theme park in the already Florida-themed Florida.
 Please ignore any references to California in the project."
+run/main_scene="uid://c2c6uxy0ho0ev"
 config/features=PackedStringArray("4.6", "C#")
 
 [autoload]
@@ -32,7 +33,7 @@ version_control/autoload_on_startup=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/character-controller/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/godot_super-wakatime/plugin.cfg")
+enabled=PackedStringArray("res://addons/character-controller/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/godot_super-wakatime/plugin.cfg", "res://addons/rider-plugin/plugin.cfg")
 
 [global_group]
 

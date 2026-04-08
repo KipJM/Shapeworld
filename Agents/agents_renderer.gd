@@ -8,6 +8,7 @@ extends MultiMeshInstance3D
 @export var color_idle: Color
 @export var color_going_to_ride: Color
 @export var color_queuing: Color
+@export var color_fpqueue: Color
 @export var color_on_ride: Color
 @export var color_activity: Color
 @export var color_leaving: Color
@@ -35,9 +36,11 @@ func _process(delta: float) -> void:
 				multimesh.set_instance_color(i, color_going_to_ride)
 			Agent.AgentState.Queuing:
 				multimesh.set_instance_color(i, color_queuing)
+			Agent.AgentState.FastPassQueuing:
+				multimesh.set_instance_color(i, color_fpqueue)
 			Agent.AgentState.OnRide:
 				multimesh.set_instance_color(i, color_on_ride)
-			Agent.AgentState.Activity:
+			Agent.AgentState.InActivity:
 				multimesh.set_instance_color(i, color_activity)
 			Agent.AgentState.Leaving:
 				multimesh.set_instance_color(i, color_leaving)

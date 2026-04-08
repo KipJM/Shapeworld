@@ -3,12 +3,14 @@ class_name TimeManager
 
 ## When does a day start, in hour
 @export var time_start: int
-
 ## When does the park close, in hour
 @export var time_close: int
-
 ## When does a day end, in hour
 @export var time_end: int
+
+@onready var time_start_min: int = time_start * 60
+@onready var time_close_min: int = time_close * 60
+@onready var time_end_min: int = time_end * 60
 
 ## how many realtime seconds for a minute to pass
 @export var minute_delta: float

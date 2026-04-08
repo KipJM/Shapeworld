@@ -108,5 +108,6 @@ func _ready() -> void:
 	
 func _tick(minute, delta) -> void:
 	# Spawn agents
-	for i in range(entry_minute_distribution[minute]):
-		create_agent()
+	if minute in entry_minute_distribution:
+		for i in range(entry_minute_distribution[minute]):
+			create_agent()
