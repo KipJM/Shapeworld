@@ -128,7 +128,7 @@ func _tick(minute, delta) -> void:
 
 func run_ride():
 	# cycle onride guests first
-	for i in on_ride:
+	for i in range(len(on_ride)):
 		on_ride.pop_back().exit_ride()
 		
 	# on board guests

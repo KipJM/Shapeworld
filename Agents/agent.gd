@@ -155,7 +155,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _tick(minute: int, _delta: float) -> void:
-	if state == AgentState.Idle or state == AgentState.GoingToRide:
+	if state == AgentState.Idle:
 		if check_if_go_home():
 			go_home()
 			return
@@ -198,17 +198,18 @@ func arrive_at_ride() -> bool:
 		
 		# Special checks are done if the agent has fastpasses for other rides,
 		# ensure waittime + ride time + walk time to fastpass does not exceed time requirement
-		var closest_fp = fastpasses[0]
-		if (closest_fp.time > (target_ride.standby_wait_time + target_ride.run_time + ceili(get_walktime_to_ride(closest_fp.ride)[0] / 60.0) + 1) # added one minute just in case
-			 and target_ride.standby_wait_time <= profile.wait_threshold):
-			# we have enough time to ride this :)
-			target_ride.enter_queue(self)
-			return true
+		if not fastpasses.is_empty(): # check again since last one might be only one and is expired
+			var closest_fp = fastpasses[0]
+			if (closest_fp.time > (target_ride.standby_wait_time + target_ride.run_time + ceili(get_walktime_to_ride(closest_fp.ride)[0] / 60.0) + 1) # added one minute just in case
+					and target_ride.standby_wait_time <= profile.wait_threshold):
+				# we have enough time to ride this :)
+				target_ride.enter_queue(self)
+				return true
 
-		else:
-			# not enough time to ride this one :(
-			# Failover
-			fp_failover = true
+			else:
+				# not enough time to ride this one :(
+				# Failover
+				fp_failover = true
 	
 
 	if target_ride.standby_wait_time <= profile.wait_threshold and not fp_failover:
@@ -216,6 +217,7 @@ func arrive_at_ride() -> bool:
 		target_ride.enter_queue(self)
 		return true
 	elif fastpass_aware and target_ride.fastpass_available and len(fastpasses) < profile_manager.max_fastpasses:
+		print("FP")
 		# fp available. Get fastpass if possible
 		var possible_fp = target_ride.get_fastpass_if_possible(self)
 		if possible_fp != null:
@@ -238,6 +240,6 @@ func get_on_ride() -> void:
 	state = AgentState.OnRide
 	
 func exit_ride() -> void:
-	print("EXIT RIDE")
+	#print("EXIT RIDE")
 	target_ride = null
 	state = AgentState.Idle
