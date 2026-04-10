@@ -255,18 +255,18 @@ func decide_attraction() -> void:
 			var sel_ride: Ride = ride_manager.get_random_ride()
 			if check_ride_decision_validity(sel_ride, upcoming_fp):
 				walk_to_ride(sel_ride)
-				break
+				return
 			
 		else:
 			# Activity
 			var sel_activity: Activity = activity_manager.get_random_activity()
 			if upcoming_fp != null and upcoming_fp.time	< (time_manager.current_minute + sel_activity.mean_time
 				+ ceili(get_walktime_to_ride(upcoming_fp.ride)[0] / 60.0)):
-				# out of time. Try again
+				# Not enough time. Try again
 				continue
 			else:
 				do_activity(sel_activity)
-				break
+				return
 			
 			
 func check_ride_decision_validity(ride: Ride, upcoming_fp: FastPass) -> bool:
@@ -314,7 +314,7 @@ func check_ride_decision_validity(ride: Ride, upcoming_fp: FastPass) -> bool:
 			# failover
 			
 		# if we already have fastpass, don't bother
-		if fastpasses.any(func(obj): return obj.ride == ride) != null:
+		if fastpasses.any(func(obj): return obj.ride == ride):
 			return false
 			
 		if (ride.online_fastpass and fastpass_aware and onlinewait_aware 
@@ -378,7 +378,7 @@ func arrive_at_ride() -> bool:
 		return true
 	elif (fastpass_aware and target_ride.fastpass_available and 
 			len(fastpasses) < profile_manager.max_fastpasses and 
-				fastpasses.any(func(obj): return obj.ride == target_ride) == null):
+				not fastpasses.any(func(obj): return obj.ride == target_ride)):
 		# Last if: the agent cannot hold another fastpass if they still have one that's not redeemed.
 		# Technically we don't need this but having multiple fastpasses for one ride seems unfair especially when online is on.
 		print("FP")
