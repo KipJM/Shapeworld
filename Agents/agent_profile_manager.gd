@@ -3,6 +3,8 @@ class_name AgentProfileManager
 
 @export_category("Global params")
 @export var walk_speed: float
+@export var activity_speed: float
+
 ## what percent of agents is aware of fastpass or online fastpass
 @export_range(0,1,0.1) var fastpass_aware_percent: float
 ## what percent of agents is aware of online wait times checking.
@@ -25,3 +27,7 @@ func random_agent_profile() -> AgentProfile:
 ## Get the walkspeed influenced by TimeManager's timescale
 func get_walk_speed() -> float:
 	return walk_speed * (%TimeManager as TimeManager).time_scale
+
+## Get the activityspeed influenced by TimeManager's timescale
+func get_activity_speed() -> float:
+	return activity_speed * (%TimeManager as TimeManager).time_scale

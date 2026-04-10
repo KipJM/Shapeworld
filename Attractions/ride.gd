@@ -148,9 +148,10 @@ func run_ride():
 
 ## Returns null if no fastpass available
 func get_fastpass_if_possible(agent: Agent) -> FastPass:
+	print("GFPIP")
 	if can_get_fastpass():
 		available_passes -= 1
-		var fp = FastPass.create(self, agent, time_manager.current_minute + fastpass_wait_time)
+		var fp: FastPass = FastPass.create(self, agent, time_manager.current_minute + fastpass_wait_time)
 		distributed_fastpasses.append(fp)
 		return fp
 	else:

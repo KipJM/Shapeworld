@@ -3,9 +3,9 @@ class_name TimeManager
 
 ## When does a day start, in hour
 @export var time_start: int
-## When does the park close, in hour
+## When does the park close, in hour. Agents will not be allowed to do new attractions after this time.
 @export var time_close: int
-## When does a day end, in hour
+## When does a day end, in hour. Simulation stops here.
 @export var time_end: int
 
 @onready var time_start_min: int = time_start * 60
@@ -14,6 +14,8 @@ class_name TimeManager
 
 ## how many realtime seconds for a minute to pass
 @export var minute_delta: float
+## When the minute delta is below this limit, agents' walking behavior will be switched to path sampling instead of obstacle avoidance for higher accuracy.
+@export var navagent_limit: float
 
 ## mapping of how many in-world second is one real world second
 var time_scale: float

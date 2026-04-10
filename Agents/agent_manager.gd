@@ -104,7 +104,6 @@ func create_agent() -> void:
 	
 func _ready() -> void:
 	entry_minute_distribution = generate_arrival_schedule(true)
-	# TODO
 	
 func _tick(minute, delta) -> void:
 	# Spawn agents
