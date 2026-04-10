@@ -34,6 +34,8 @@ func _process(delta: float) -> void:
 				multimesh.set_instance_color(i, color_idle)
 			Agent.AgentState.GoingToRide:
 				multimesh.set_instance_color(i, color_going_to_ride)
+			Agent.AgentState.GoingToActivity:
+				multimesh.set_instance_color(i, color_activity)				
 			Agent.AgentState.Queuing:
 				multimesh.set_instance_color(i, color_queuing)
 			Agent.AgentState.FastPassQueuing:
@@ -46,7 +48,7 @@ func _process(delta: float) -> void:
 				multimesh.set_instance_color(i, color_leaving)
 			Agent.AgentState.Left:
 				multimesh.set_instance_color(i, color_leaving)
-				
+
 		if len(agent.fastpasses) > 0:
 			fastpass_agents.append(agent)
 

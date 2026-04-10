@@ -1,7 +1,7 @@
 extends Node3D
 class_name Agent
 
-enum AgentState {Idle, GoingToRide, Queuing, FastPassQueuing, OnRide, InActivity, Leaving, Left}
+enum AgentState {Idle, GoingToRide, GoingToActivity, Queuing, FastPassQueuing, OnRide, InActivity, Leaving, Left}
 
 @export_custom(PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_READ_ONLY)
 var id: int
@@ -15,6 +15,8 @@ var onlinewait_aware: bool
 
 var state: AgentState
 var state_details: String
+var state_history: Dictionary[int, Array]
+
 var fastpasses: Array[FastPass]
 
 @onready var agent_manager: AgentManager = get_tree().current_scene.get_node("%AgentManager")
@@ -27,14 +29,18 @@ var fastpasses: Array[FastPass]
 var safe_vel: Vector3
 var walk_vel: float
 
-var target_ride: Ride
+
+var cached_travel_path: PackedVector3Array
+var cached_travel_dist: float
+
 var travel_duration: float # in delta real-world seconds.
 var travel_timer: float
 
+var target_ride: Ride
+var ride_history: Dictionary[int, Ride]
+
 var target_activity: Activity
 var activity_timer: int
-
-var ride_history: Dictionary[int, Ride]
 
 func initialize(_id: int, _profile: AgentProfile) -> void:
 	time_manager.tick.connect(_tick)
@@ -104,6 +110,9 @@ func walk_to_ride(ride: Ride) -> void:
 	#nav_agent.max_speed = self.walk_vel
 	
 	# Start walk
+	cached_travel_dist = 0
+	cached_travel_path = []
+	
 	nav_agent.target_position = ride.global_position
 
 func check_if_go_home() -> bool:
@@ -127,6 +136,9 @@ func go_home():
 	#nav_agent.max_speed = self.walk_vel
 	
 	# Start walk
+	cached_travel_dist = 0
+	cached_travel_path = []
+	
 	nav_agent.target_position = Vector3.ZERO # exit is at (0,0,0). yes hardcoded is bad. no i dont care
 
 	travel_timer = 0
@@ -145,23 +157,26 @@ func go_along_path(delta: float) -> void:
 		global_position += self.safe_vel * delta
 			
 	else:
-		nav_agent.get_next_path_position() # this is required to trigger navagent to build path
+		if cached_travel_path == null or len(cached_travel_path) == 0:
+			nav_agent.get_next_path_position() # this is required to trigger navagent to build path
+			cached_travel_path = nav_agent.get_current_navigation_path()
+			cached_travel_dist = nav_agent.get_path_length()
 		
 		# path sampling
 		# percentage is calculated by time
 		var percentage: float = travel_timer / travel_duration
 		
-		var sampled_length: float = nav_agent.get_path_length() * percentage
+		var sampled_length: float = cached_travel_dist * percentage
 		
 		var sample_pos: Vector3 = global_position # just incase it's broken, stay at the same place
 		var sample_dist: float = 0
 		
-		if len(nav_agent.get_current_navigation_path()) == 0: # apparently this can happen
+		if len(cached_travel_path) == 0: # apparently this can happen
 			return
 		
-		var last_path_point: Vector3 = nav_agent.get_current_navigation_path()[0]
-		for path_point in nav_agent.get_current_navigation_path().slice(1):
-			var dist = last_path_point.distance_to(path_point)
+		var last_path_point: Vector3 = cached_travel_path[0]
+		for path_point in cached_travel_path.slice(1):
+			var dist: float = last_path_point.distance_to(path_point)
 			if sample_dist + dist >= sampled_length:
 				# either inbetween or right on the next one
 				sample_pos = last_path_point.lerp(path_point, (sampled_length - sample_dist) / dist)
@@ -182,6 +197,19 @@ func _physics_process(delta: float) -> void:
 			# Arrived
 			arrive_at_ride()
 	
+	elif state == AgentState.GoingToActivity:
+		go_along_path(delta)
+		travel_timer += delta
+		
+		if travel_timer >= travel_duration or nav_agent.is_target_reached():
+			# can't be bothered to make a separate function for this lol
+			# just some basic cleanup that's probably not even needed
+			travel_timer = 0
+			travel_duration = 0
+			
+			state = AgentState.InActivity # this is important though
+			
+	
 	elif state == AgentState.InActivity:
 		var vel: Vector3 = Vector3.FORWARD.rotated(Vector3.UP, randf_range(0, 2*PI)) # let agent move randomly
 		vel *= profile_manager.get_activity_speed() # move only a tiny bit :)
@@ -201,7 +229,9 @@ func _physics_process(delta: float) -> void:
 		
 
 
-func _tick(_minute: int, _delta: float) -> void:
+func _tick(minute: int, _delta: float) -> void:
+	state_history[minute] = [state, state_details]
+	
 	if state == AgentState.Idle:
 		if check_if_go_home():
 			go_home()
@@ -265,7 +295,7 @@ func decide_attraction() -> void:
 				# Not enough time. Try again
 				continue
 			else:
-				do_activity(sel_activity)
+				do_activity(sel_activity, upcoming_fp != null)
 				return
 			
 			
@@ -381,7 +411,7 @@ func arrive_at_ride() -> bool:
 				not fastpasses.any(func(obj): return obj.ride == target_ride)):
 		# Last if: the agent cannot hold another fastpass if they still have one that's not redeemed.
 		# Technically we don't need this but having multiple fastpasses for one ride seems unfair especially when online is on.
-		print("FP")
+		
 		# fp available. Get fastpass if possible
 		var possible_fp: FastPass = target_ride.get_fastpass_if_possible(self)
 		if possible_fp != null:
@@ -392,12 +422,33 @@ func arrive_at_ride() -> bool:
 	return false
 	
 
-func do_activity(activity: Activity) -> void:
+func do_activity(activity: Activity, time_restricted: bool) -> void:
+	# when not time restricted, agent will go to a random place on navmesh, similar to how a guest might go to a specific
+	# restaurant or POI.
+	# if time restricted, agent will just do the activity near where they are.
+
 	target_ride	= null
 	
 	target_activity = activity
-	state = AgentState.InActivity
+	state = AgentState.GoingToActivity
 	state_details = activity.name
+	
+	
+	if time_restricted:
+		cached_travel_dist = 0
+		cached_travel_path = []
+		
+		nav_agent.target_position = global_position
+		travel_duration = 0
+		travel_timer = 0
+	else:
+		cached_travel_dist = 0
+		cached_travel_path = []
+		
+		var target: Vector3 = NavigationServer3D.map_get_random_point(nav_agent.get_navigation_map(), nav_agent.navigation_layers, true)
+		nav_agent.target_position = target
+		travel_duration = get_walktime(global_position, target)[0]
+		travel_timer = 0
 	
 	activity_timer = int(randfn(activity.mean_time, activity.mean_time/2.0))
 
