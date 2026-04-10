@@ -59,6 +59,7 @@ func initialize(_id: int, _profile: AgentProfile) -> void:
 	
 func init_nav_agent() -> void:
 	nav_agent.max_speed = profile_manager.get_walk_speed() * 3 # slightly above average walk speed :)
+	self.walk_vel = profile_manager.get_walk_speed() * randf_range(1.05,1.4) # variation in walking speed, also make it faster to prevent teleporting
 	nav_agent.velocity_computed.connect(on_velocity_computed)
 
 
@@ -95,7 +96,7 @@ func walk_to_ride(ride: Ride) -> void:
 	self.target_ride = ride
 	
 	var a: Array = get_walktime_to_ride(ride)
-	self.walk_vel = profile_manager.get_walk_speed() * randf_range(1.1,1.4) # variation in walking speed, also make it faster to prevent teleporting
+	
 	
 	var walktime: float = a[0]
 	
@@ -129,8 +130,6 @@ func go_home():
 	self.state_details = "LEAVING"
 	
 	self.target_ride = null
-	
-	self.walk_vel = profile_manager.get_walk_speed() * randf_range(1,1.4) # variation in walking speed
 	
 	#print(self.walk_vel)
 	#nav_agent.max_speed = self.walk_vel
@@ -260,7 +259,7 @@ func decide_attraction() -> void:
 	fastpasses.sort_custom(func(a, b): return a.time <= b.time)
 
 	var upcoming_fp: FastPass = null
-	if not fastpasses.is_empty():
+	if len(fastpasses) > 0:
 		var candidate_fp: FastPass = fastpasses[0]
 		if candidate_fp.time <= time_manager.current_minute + ceili(get_walktime_to_ride(candidate_fp.ride)[0] / 60) + 10:
 			walk_to_ride(candidate_fp.ride)
