@@ -10,11 +10,12 @@ config_version=5
 
 [application]
 
-config/name="FloridaThemedFlorida"
-config/description="Visualization of Defunctland's shapeland.
+config/name="Shape World!"
+config/description="3D realtime simulation and visualization inspired by Defunctland's shapeland.
 
-Simulates a day in the Florida themed theme park in the already Florida-themed Florida.
+Simulates park guests on a day in a certain Safari themed theme park
 Please ignore any references to California in the project."
+config/version="1.0.0"
 run/main_scene="uid://c2c6uxy0ho0ev"
 config/features=PackedStringArray("4.6", "C#")
 
