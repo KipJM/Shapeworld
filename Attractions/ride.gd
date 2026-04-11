@@ -12,7 +12,7 @@ class_name Ride
 @export var fastpass_available: bool
 ## is wait time checkable online
 @export var online_waittimes: bool
-## can fastpasses be obtained online
+## can fastpasses be obtained online. fastpass_avaiable must be true for this to have effect.
 @export var online_fastpass: bool
 ## fastpass queue ratio. What percentage of attraction capacity is given to fastpass members.
 @export_range(0,1, 0.1) var fastpass_queue_ratio: float

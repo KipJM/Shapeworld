@@ -9,6 +9,8 @@ public partial class HeadMovement3D : Marker3D
     // Mouse sensitivity of rotation move
     [Export] public float MouseSensitivity = 2.0f;
 
+    [Export] public float ControllerSensitivity = 1.0f;
+
     // Vertical angle limit of rotation move
     [Export] public float VerticalAngleLimit = 90.0f;
 

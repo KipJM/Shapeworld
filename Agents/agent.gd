@@ -433,7 +433,7 @@ func do_activity(activity: Activity, time_restricted: bool) -> void:
 	state_details = activity.name
 	
 	
-	if time_restricted:
+	if time_restricted or !profile_manager.enable_activity_roaming:
 		cached_travel_dist = 0
 		cached_travel_path = []
 		

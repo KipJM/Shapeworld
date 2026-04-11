@@ -13,7 +13,9 @@ class_name AgentProfileManager
 ## max amount of fastpass an agent can hold at a time
 @export var max_fastpasses: int
 
-
+## Mainly for performance. With this disabled, agents will do activities at where they stand instead of going to another place chosen randomly.
+## This can drastically improve performance, however it will influence simulation results since this affects how much time an activity takes + agents' movement 
+@export var enable_activity_roaming: bool
 
 @export_category("Profiles")
 ## number does not have to add up to one.
