@@ -49,7 +49,7 @@ var run_time_remaining: int = run_time
 func calc_standby_wait() -> int:
 	if fastpass_available or online_fastpass:
 		var queue_len: int = len(queue)
-		var exp_queue_len: int = len(unredeemed_fastpass_queue) + len(fastpass_queue)
+		var exp_queue_len: int = len(fastpass_queue)
 		var exp_seats: int = int(capacity * fastpass_queue_ratio)
 		var standby_seats: int = capacity - exp_seats
 
@@ -80,7 +80,7 @@ func calc_standby_wait() -> int:
 func calc_fastpass_wait() -> int:
 	if fastpass_available or online_fastpass:
 		var queue_len: int = len(queue)
-		var exp_queue_len: int = len(unredeemed_fastpass_queue) + len(fastpass_queue)
+		var exp_queue_len: int = len(fastpass_queue)
 		var exp_seats: int = int(capacity * fastpass_queue_ratio)
 		var standby_seats: int = capacity - exp_seats
 
@@ -171,7 +171,7 @@ func run_ride():
 func get_fastpass_if_possible(agent: Agent) -> FastPass:
 	if can_get_fastpass():
 		available_passes -= 1
-		var fp: FastPass = FastPass.create(self, agent, time_manager.current_minute + fastpass_wait_time, fp_latelimit)
+		var fp: FastPass = FastPass.create(self, agent, time_manager.current_minute + standby_wait_time, fp_latelimit) # using standby wait times. See README.md#Warning about fastpass
 		distributed_fastpasses.append(fp)
 		unredeemed_fastpass_queue.append(fp)
 		return fp
