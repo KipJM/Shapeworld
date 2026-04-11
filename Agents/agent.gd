@@ -261,7 +261,7 @@ func decide_attraction() -> void:
 	var upcoming_fp: FastPass = null
 	if len(fastpasses) > 0:
 		var candidate_fp: FastPass = fastpasses[0]
-		if candidate_fp.time <= time_manager.current_minute + ceili(get_walktime_to_ride(candidate_fp.ride)[0] / 60) + 10:
+		if time_manager.current_minute + ceili(get_walktime_to_ride(candidate_fp.ride)[0] / 60) + 10 <= candidate_fp.time + candidate_fp.late_limit:
 			walk_to_ride(candidate_fp.ride)
 			return	
 	
@@ -289,8 +289,8 @@ func decide_attraction() -> void:
 		else:
 			# Activity
 			var sel_activity: Activity = activity_manager.get_random_activity()
-			if upcoming_fp != null and upcoming_fp.time	< (time_manager.current_minute + sel_activity.mean_time
-				+ ceili(get_walktime_to_ride(upcoming_fp.ride)[0] / 60.0)):
+			if upcoming_fp != null and (time_manager.current_minute + sel_activity.mean_time
+				+ ceili(get_walktime_to_ride(upcoming_fp.ride)[0] / 60.0)) > upcoming_fp.time + upcoming_fp.late_limit:
 				# Not enough time. Try again
 				continue
 			else:
@@ -325,7 +325,7 @@ func check_ride_decision_validity(ride: Ride, upcoming_fp: FastPass) -> bool:
 				+ ride.run_time # cant get wait time :O
 					+ ceili(get_walktime(ride.global_position, upcoming_fp.ride.global_position)[0] / 60.0) + 10) # add MORE minutes since agent have to guess queue times
 				
-		if time_manager.current_minute + opportunity_time > upcoming_fp.time:
+		if time_manager.current_minute + opportunity_time > upcoming_fp.time + upcoming_fp.late_limit:
 			return false
 		else:
 			return true
@@ -389,7 +389,7 @@ func arrive_at_ride() -> bool:
 		# ensure waittime + ride time + walk time to fastpass does not exceed time requirement
 		if not fastpasses.is_empty(): # check again since last one might be only one and is expired
 			var closest_fp: FastPass = fastpasses[0]
-			if (closest_fp.time > (target_ride.standby_wait_time + target_ride.run_time + ceili(get_walktime_to_ride(closest_fp.ride)[0] / 60.0) + 1) # added one minute just in case
+			if ((target_ride.standby_wait_time + target_ride.run_time + ceili(get_walktime_to_ride(closest_fp.ride)[0] / 60.0) + 1) <= closest_fp.time + closest_fp.late_limit # added one minute just in case
 					and target_ride.standby_wait_time <= profile.wait_threshold):
 				# we have enough time to ride this :)
 				target_ride.enter_queue(self)
