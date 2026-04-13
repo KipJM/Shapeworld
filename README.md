@@ -29,6 +29,8 @@ however performance heavily depends on how many agents are in the park plus your
 Disabling activity roaming can  dramatically improve performance, but this also influences agent behavior.
 
 # Demo
+[![yt-thumbnail.png](.promo/yt-thumbnail.png)](https://www.youtube.com/watch?v=Lvj6gnsH2Kw)
+
 ### **For evaluation, I'm also providing a demo build of the executable with some preset simulation parameters. You can find it in [releases](https://github.com/KipJM/shapeworld/releases/latest).**
 
 Specifically, high-speed simulation (path sampling) is on, there are 2500 agents max, and activity roaming is on.\
