@@ -20,6 +20,8 @@ class_name Ride
 @export var fp_earlylimit: int = 60
 ## Ride will expire their fastpass if they're this many minutes late by their appointment
 @export var fp_latelimit: int = 60
+## Minimum amount of return window wait time. Prevents FP being faster than standby
+@export var fp_min_wait: int = 40
 
 # how many people can be processed per run
 @warning_ignore("integer_division")
@@ -50,12 +52,19 @@ func calc_standby_wait() -> int:
 	if fastpass_available or online_fastpass:
 		var queue_len: int = len(queue)
 		var exp_queue_len: int = len(fastpass_queue)
+		var exp_virtual_queue: Array[FastPass] = unredeemed_fastpass_queue.duplicate()
 		var exp_seats: int = int(capacity * fastpass_queue_ratio)
 		var standby_seats: int = capacity - exp_seats
 
 		var runs: int = 0
 		# calculate standby wait time through simulating all runs until last person in line gets on ride
 		while queue_len > 0:
+			# Add redeemed fastpasses to queue				
+			var redeeming_fastpasses: Array[FastPass] = exp_virtual_queue.filter(func(obj): return obj.time <= time_manager.current_minute + run_time_remaining + runs * run_time)
+			exp_queue_len += len(redeeming_fastpasses)
+			for o in redeeming_fastpasses:
+				exp_virtual_queue.erase(o)
+		
 			var avail_standby: int = 0
 			
 			if exp_queue_len > exp_seats:
@@ -80,7 +89,7 @@ func calc_standby_wait() -> int:
 func calc_fastpass_wait() -> int:
 	if fastpass_available or online_fastpass:
 		var queue_len: int = len(queue)
-		var exp_queue_len: int = len(fastpass_queue)
+		var exp_queue_len: int = len(unredeemed_fastpass_queue) + len(fastpass_queue)
 		var exp_seats: int = int(capacity * fastpass_queue_ratio)
 		var standby_seats: int = capacity - exp_seats
 
@@ -102,7 +111,7 @@ func calc_fastpass_wait() -> int:
 			else:
 				queue_len = 0
 
-		return runs * run_time + run_time_remaining
+		return max(runs * run_time + run_time_remaining, fp_min_wait)
 	else:
 		return 0
 		
@@ -115,7 +124,7 @@ func _ready() -> void:
 	
 
 
-func _tick(minute, delta) -> void:	
+func _tick(minute, _delta) -> void:	
 	run_time_remaining -= 1
 	
 	# cleanup expired fastpasses
@@ -171,7 +180,7 @@ func run_ride():
 func get_fastpass_if_possible(agent: Agent) -> FastPass:
 	if can_get_fastpass():
 		available_passes -= 1
-		var fp: FastPass = FastPass.create(self, agent, time_manager.current_minute + standby_wait_time, fp_latelimit) # using standby wait times. See README.md#Warning about fastpass
+		var fp: FastPass = FastPass.create(self, agent, time_manager.current_minute + fastpass_wait_time, fp_latelimit) # using standby wait times. See README.md#Warning about fastpass
 		distributed_fastpasses.append(fp)
 		unredeemed_fastpass_queue.append(fp)
 		return fp

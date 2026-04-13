@@ -296,7 +296,9 @@ func decide_attraction() -> void:
 			else:
 				do_activity(sel_activity, upcoming_fp != null)
 				return
-			
+	
+	# nothing to do :P
+	state = AgentState.Idle
 			
 func check_ride_decision_validity(ride: Ride, upcoming_fp: FastPass) -> bool:
 	# time limit is checked if upcoming_fp is not null. The time is calculated by: time walking to ride + queue time +
@@ -360,7 +362,7 @@ func check_ride_decision_validity(ride: Ride, upcoming_fp: FastPass) -> bool:
 
 
 func arrive_at_ride() -> bool:
-	self.state = AgentState.Queuing
+	self.state = AgentState.Idle
 	
 	if not nav_agent.is_navigation_finished():
 		# Teleport to destination
@@ -401,6 +403,19 @@ func arrive_at_ride() -> bool:
 				fp_failover = true
 	
 
+	# Special: If fastpass wait is shorter (plus aware of fastpass), take advantage of that loophole!
+	# (not doing this check for online fastpass cause oh my god that's a logistical nightmare)
+	if (fastpass_aware and target_ride.fastpass_available and len(fastpasses) < profile_manager.max_fastpasses 
+				and not fastpasses.any(func(obj): return obj.ride == target_ride)):
+				
+		if target_ride.fastpass_wait_time < target_ride.standby_wait_time:
+		
+			var possible_fp: FastPass = target_ride.get_fastpass_if_possible(self)
+			if possible_fp != null:
+				fastpasses.append(possible_fp)
+				state = AgentState.Idle
+				return false
+					
 	if target_ride.standby_wait_time <= profile.wait_threshold and not fp_failover:
 		# we ride :)
 		target_ride.enter_queue(self)
