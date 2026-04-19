@@ -157,6 +157,28 @@ Dictionaries in the format of [Profile, float] are typically probability distrib
   - IMPORTANT: minute delta: how many real world seconds is one simulated minute,
     - when delta is too small it will auto switch to high speed simulation mode
 
+# Optimization
+Performance is mainly dictated by three properties of the simulation (and your computer's hardware):
+- Simulation speed (minute_delta)
+- number of agents in park
+- pathfinding behavior
+
+Due to the amount of thinking/pathfinding that have to be simulated (this project is not using ECS), expect low FPS with >2000 agents.
+
+Shapeworld contains some optimizations to increase performance somewhat, especially in high-speed simulation mode (minute_delta < 2)
+
+When in high-speed simulation mode:
+- Obstacle avoidance is turned off. Agents are no longer driven physically by the navmesh agent, so checking other agents for intersections will be off.
+- Agents move using path sampling. A navigation path will be generated at the start of the walk through querying NavigationServer3D, the agent will linearly interpolate through the waypoints based on the theoretical walking velocity.
+- Navigation paths are cached at the start of a walking sequence.
+
+Additionally, agents are rendered through GPU instancing (multimesh instance), so all possible computation time from the CPU is given to simulating agent behavior. However note that Navigation debug lines are drawn very inefficiently, so only use it for debugging.
+
+With these optimizations, you can expect a FPS increase of ~10-15 FPS depending on simulation settings.
+
+You can also try disabling activity roaming. With this off, agents will do their activities in-place instead of going to a random place on the map. This will greatly reduce the amount of navmesh querying needed, but it will also influence simulation results.
+
+
 # Warning about california
 You may find strings referencing a "california-themed theme park in the already california-themed california", or worse,
 a "florida-themed theme park in the already florida-themed florida". Please disregard these strings, **be assured this project is about
