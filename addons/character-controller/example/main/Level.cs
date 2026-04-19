@@ -8,10 +8,11 @@ public partial class Level : Node3D
 
     public override void _Ready()
     {
-        if (!OS.IsDebugBuild())
-        {
-            FastClose = false;
-        }
+        // EDIT: Enable on all builds
+        // if (!OS.IsDebugBuild())
+        // {
+        //     FastClose = false;
+        // }
 
         if (FastClose)
         {
